@@ -1,8 +1,18 @@
 // Single source of truth for "what does this order cost".
 // Used by: POST /api/checkout, POST /api/admin/orders, GET /api/orders/:id (prepay view).
 // Recalculated server-side at every gate — never trust client totals.
-import { CouponModel, CouponRedemptionModel, ProductModel } from "@/lib/db";
+//
+// `computeOrderTotals` (./totals) is the pure-math half — split out so it
+// can be unit tested without a DB. `priceOrder` does the DB lookups then
+// calls into it.
+import { CouponModel, ProductModel } from "@/lib/db";
 import { badRequest, notFound } from "@/lib/errors/AppError";
+import {
+  computeOrderTotals,
+  type CouponLike,
+  FLAT_SHIPPING_PAISE,
+  FREE_SHIPPING_THRESHOLD_PAISE,
+} from "./totals";
 
 export type CartLineInput = {
   productId: string;
@@ -30,8 +40,7 @@ export type PricedOrder = {
   coupon: { code: string; discount: number } | null;
 };
 
-const FLAT_SHIPPING_PAISE = 9900; // ₹99 — placeholder
-const FREE_SHIPPING_THRESHOLD_PAISE = 150000; // ₹1500
+export { computeOrderTotals, FLAT_SHIPPING_PAISE, FREE_SHIPPING_THRESHOLD_PAISE, type CouponLike };
 
 export async function priceOrder(
   lines: CartLineInput[],
@@ -45,7 +54,7 @@ export async function priceOrder(
     _id: { $in: productIds },
     isActive: true,
   })
-    .select("name variants slug")
+    .select("name price variants slug")
     .lean();
 
   const byId = new Map(products.map((p) => [String(p._id), p]));
@@ -62,7 +71,10 @@ export async function priceOrder(
     );
     if (!variant) throw badRequest(`SKU ${line.sku} not available`);
     if (variant.stock < line.qty) throw badRequest(`Insufficient stock for ${line.sku}`);
-    const unitPrice = (p as unknown as { price: number }).price;
+    const unitPrice = (p as unknown as { price?: number }).price;
+    if (typeof unitPrice !== "number" || !Number.isInteger(unitPrice) || unitPrice < 0) {
+      throw badRequest(`Product ${line.productId} has no valid price`);
+    }
     priced.push({
       productId: line.productId,
       sku: line.sku,
@@ -77,42 +89,22 @@ export async function priceOrder(
 
   const subtotal = priced.reduce((s, l) => s + l.lineTotal, 0);
 
-  let discount = 0;
-  let applied: PricedOrder["coupon"] = null;
+  let coupon: CouponLike | null = null;
   if (couponCode) {
     const code = couponCode.toUpperCase();
-    const coupon = await CouponModel.findOne({ code, isActive: true }).lean();
-    if (!coupon) throw badRequest("Invalid coupon");
-    if (coupon.startsAt && coupon.startsAt > now) throw badRequest("Coupon not yet active");
-    if (coupon.endsAt && coupon.endsAt < now) throw badRequest("Coupon expired");
-    if (coupon.minSubtotal && subtotal < coupon.minSubtotal) {
-      throw badRequest(`Minimum subtotal ₹${coupon.minSubtotal / 100}`);
-    }
-    if (coupon.usageLimit) {
-      const total = await CouponRedemptionModel.countDocuments({ couponCode: code });
-      if (total >= coupon.usageLimit) throw badRequest("Coupon usage limit reached");
-    }
-
-    if (coupon.kind === "percent") {
-      discount = Math.floor((subtotal * coupon.amount) / 100);
-      if (coupon.maxDiscount) discount = Math.min(discount, coupon.maxDiscount);
-    } else {
-      // flat
-      discount = coupon.amount;
-    }
-    discount = Math.min(discount, subtotal);
-    applied = { code, discount };
+    const found = await CouponModel.findOne({ code, isActive: true }).lean();
+    if (!found) throw badRequest("Invalid coupon");
+    coupon = found as unknown as CouponLike;
   }
 
-  const shipping =
-    subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_THRESHOLD_PAISE ? 0 : FLAT_SHIPPING_PAISE;
+  const totals = computeOrderTotals({ subtotal, coupon, now });
 
   return {
     lines: priced,
     subtotal,
-    discount,
-    shipping,
-    total: subtotal - discount + shipping,
-    coupon: applied,
+    discount: totals.discount,
+    shipping: totals.shipping,
+    total: totals.total,
+    coupon: totals.coupon,
   };
 }

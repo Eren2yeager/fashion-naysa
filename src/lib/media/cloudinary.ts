@@ -22,7 +22,7 @@ export function signUpload(params: {
   const ts = Math.floor(Date.now() / 1000);
   const e = getEnv();
   const signature = ensure().utils.api_sign_request(
-    { ...params, timestamp: ts },
+    { ...params, timestamp: ts, allowed_formats: "jpg,png,webp" },
     e.CLOUDINARY_API_SECRET,
   );
   return {
@@ -32,6 +32,7 @@ export function signUpload(params: {
     signature,
     folder: params.folder,
     eager: params.eager,
+    allowedFormats: ["jpg", "png", "webp"],
   };
 }
 

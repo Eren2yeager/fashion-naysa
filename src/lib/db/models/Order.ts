@@ -57,6 +57,13 @@ const OrderSchema = new Schema(
 
     couponCode: { type: String, default: null },
 
+    // True once stock has been decremented for this order; flipped back on
+    // release. Makes decrement/release idempotent (webhook retries, sweeper).
+    stockCommitted: { type: Boolean, default: false },
+
+    // Total paise refunded so far (partial refunds accumulate here).
+    refundedAmount: { type: Number, default: 0, min: 0 },
+
     shippingAddress: { type: AddressSchema, required: true },
 
     // Payment

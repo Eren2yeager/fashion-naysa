@@ -2,7 +2,7 @@
 
 # Nayasa
 
-Premium girls' shirt e-commerce brand site. Client freelance project. Focus: fast, elegant, conversion-friendly storefront with a weekly drop model , client wants a CMS too.
+Premium girls' shirt e-commerce brand site. Client freelance project. Focus: fast, elegant, client wants a CMS too.
 
 ## Stack
 - Next.js (App Router) + TypeScript
@@ -54,4 +54,4 @@ bun run test        # if/when test suite exists — add real command here once s
 - Don't use CommonJS (`require`) — ES modules only.
 
 
-@server.plan.md
+@/ai.docs

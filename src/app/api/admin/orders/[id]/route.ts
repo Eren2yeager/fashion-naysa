@@ -2,7 +2,7 @@ import { z } from "zod";
 import { withApi, ok } from "@/lib/errors/handler";
 import { requireAdmin } from "@/lib/auth";
 import { connectDB, OrderModel, ORDER_STATUS } from "@/lib/db";
-import { notFound } from "@/lib/errors/AppError";
+import { badRequest, notFound } from "@/lib/errors/AppError";
 
 const patchSchema = z.object({
   status: z.enum(ORDER_STATUS).optional(),
@@ -11,10 +11,13 @@ const patchSchema = z.object({
   shipmentStatus: z.string().optional(),
 });
 
+const OBJECT_ID = /^[0-9a-fA-F]{24}$/;
+
 export const PATCH = withApi(
   async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
     await requireAdmin();
     const { id } = await ctx.params;
+    if (!id.match(OBJECT_ID)) throw badRequest("Invalid id");
     const data = patchSchema.parse(await req.json());
     await connectDB();
     const order = await OrderModel.findById(id);

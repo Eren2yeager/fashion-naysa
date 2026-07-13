@@ -16,6 +16,8 @@ export type RefundInput = {
   reason?: string;
 };
 
+type RzpRefundResult = { id: string; amount: number; status: string };
+
 export async function refundOrder(input: RefundInput) {
   await connectDB();
   const order = await OrderModel.findById(input.orderId);
@@ -33,12 +35,13 @@ export async function refundOrder(input: RefundInput) {
   }
 
   const rzp = getRazorpay();
+  let refund: RzpRefundResult;
   try {
-    await rzp.payments.refund(order.razorpayPaymentId, {
+    refund = (await rzp.payments.refund(order.razorpayPaymentId, {
       amount: input.amount,
       speed: "optimum",
       notes: input.reason ? { reason: input.reason } : undefined,
-    } as Parameters<typeof rzp.payments.refund>[1]);
+    } as Parameters<typeof rzp.payments.refund>[1])) as unknown as RzpRefundResult;
   } catch (err) {
     throw upstream("Razorpay refund failed", { err: (err as Error).message });
   }
@@ -56,9 +59,18 @@ export async function refundOrder(input: RefundInput) {
   await releaseStock(order._id.toString());
   if (order.couponCode) await releaseRedemption(order._id.toString());
 
-  order.status = "refunded";
-  order.history.push({ status: "refunded", note: input.reason ?? "admin refund" });
+  const refundAmount = refund?.amount ?? input.amount ?? order.total;
+  order.refundedAmount = (order.refundedAmount ?? 0) + refundAmount;
+  if (order.refundedAmount >= order.total) {
+    order.status = "refunded";
+    order.history.push({ status: "refunded", note: `rzp:${refund?.id ?? "?"} ${input.reason ?? "admin refund"}` });
+  } else {
+    order.history.push({
+      status: order.status,
+      note: `partial refund rzp:${refund?.id ?? "?"} ${refundAmount}p`,
+    });
+  }
   await order.save();
 
-  return { id: order._id, status: order.status };
+  return { id: order._id, status: order.status, refundId: refund?.id, refundedAmount: order.refundedAmount };
 }

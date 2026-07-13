@@ -1,1 +1,1 @@
-export { decrementStock, releaseStock } from "./stock";
+export { decrementStock, releaseStock, claimStockDecrement } from "./stock";

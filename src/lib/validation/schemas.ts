@@ -70,7 +70,7 @@ export const productUpdateSchema = productCreateSchema.partial();
 export const couponCreateSchema = z.object({
   code: z.string().min(1).max(32),
   kind: z.enum(["percent", "flat"]),
-  amount: z.number().min(0),
+  amount: z.number().int().min(0),
   minSubtotal: z.number().int().min(0).default(0),
   maxDiscount: z.number().int().min(0).optional(),
   usageLimit: z.number().int().min(0).optional(),

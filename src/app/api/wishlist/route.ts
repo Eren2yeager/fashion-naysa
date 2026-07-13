@@ -2,7 +2,6 @@ import { withApi, ok } from "@/lib/errors/handler";
 import { requireUser } from "@/lib/auth";
 import { connectDB, WishlistModel } from "@/lib/db";
 import { wishlistToggleSchema } from "@/lib/validation/schemas";
-import { badRequest } from "@/lib/errors/AppError";
 
 export const GET = withApi(async () => {
   const user = await requireUser();
@@ -21,8 +20,8 @@ export const POST = withApi(async (req: Request) => {
   try {
     await WishlistModel.create({ userId: user.clerkId, productId });
   } catch (err) {
-    // duplicate key = already wishlisted, treat as ok
-    if ((err as { code?: number }).code !== 11000) throw badRequest("Could not add");
+    // duplicate key = already wishlisted; anything else rethrow so withApi -> 500
+    if ((err as { code?: number }).code !== 11000) throw err;
   }
   return ok({ ok: true });
 });

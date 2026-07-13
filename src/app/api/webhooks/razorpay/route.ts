@@ -2,11 +2,16 @@
 // On first transition to "paid" we decrement stock atomically and book
 // a Shiprocket shipment. The shipment is fire-and-forget after stock
 // is committed so a slow Shiprocket call cannot double-charge a customer.
+//
+// Concurrency: stock-decrement and shipment-booking are gated by the same
+// atomic claim (Order.stockCommitted: false -> true). Two parallel webhook
+// deliveries race in findOneAndUpdate; exactly one wins. The winner is the
+// sole caller of bookShipment, so Shiprocket never gets a double create.
 import { withApi, ok } from "@/lib/errors/handler";
 import { connectDB, OrderModel } from "@/lib/db";
 import { verifyWebhookSignature } from "@/lib/payments";
 import { tryRedeem, releaseRedemption } from "@/lib/coupons";
-import { decrementStock, releaseStock } from "@/lib/orders";
+import { decrementStock, releaseStock, claimStockDecrement } from "@/lib/orders";
 import { createShipment, generateAwb } from "@/lib/shipping";
 import { unauthorized } from "@/lib/errors/AppError";
 
@@ -104,7 +109,7 @@ export const POST = withApi(async (req: Request) => {
 
   if (data.event === "payment.captured") {
     if (order.status === "paid") return ok({ dedup: true });
-    const wasFirstPayment = order.status === "created";
+    const previousStatus = order.status; // for wasFirstPayment + #1 (payment.failed rollback)
     order.status = "paid";
     order.razorpayPaymentId = payment.id;
     order.history.push({ status: "paid", note: `rzp:${payment.id}` });
@@ -117,7 +122,14 @@ export const POST = withApi(async (req: Request) => {
         discount: order.discount,
       });
       if (!r.ok) {
-        // coupon invalid or limit hit after pricing — roll back status, fail order.
+        if (r.reason === "Already redeemed") {
+          // A retry of our own; treat as success — the original flow already
+          // decremented stock and booked shipment. Don't flip to failed.
+          await order.save();
+          return ok({ ok: true, dedup: "redeemed" });
+        }
+        // Genuine failure (limit hit, invalid coupon). Mark failed so the
+        // sweeper doesn't retry; admin refunds via /api/admin/orders/:id/refund.
         order.status = "failed";
         order.history.push({ status: "failed", note: `coupon: ${r.reason}` });
         await order.save();
@@ -126,13 +138,18 @@ export const POST = withApi(async (req: Request) => {
     }
     await order.save();
 
+    const wasFirstPayment = previousStatus === "created";
     if (wasFirstPayment) {
+      // Atomic claim: exactly one webhook wins. Losers no-op here.
+      const claim = await claimStockDecrement(order._id.toString());
+      if (!claim) return ok({ ok: true, dedup: "claim" });
+
       // stock first; only book shipment if all lines reserved.
       try {
         await decrementStock(order._id.toString());
       } catch (err) {
-        // decrementStock already flipped order to "failed" + pushed history.
-        // release coupon so it can be reused.
+        // decrementStock already rolled back stock + released the claim
+        // and set status to "failed" + pushed history.
         if (order.couponCode) await releaseRedemption(order._id.toString());
         return ok({ ok: true, note: (err as Error).message });
       }
@@ -143,11 +160,14 @@ export const POST = withApi(async (req: Request) => {
       void bookShipment(order._id.toString());
     }
   } else {
+    // payment.failed
+    const previousStatus = order.status;
     order.status = "failed";
     order.history.push({ status: "failed", note: `rzp:${payment.id}` });
     await order.save();
     if (order.couponCode) await releaseRedemption(order._id.toString());
-    if (order.status === "fulfilled" || order.status === "shipped") {
+    // Release stock if it was committed before the failure arrived.
+    if (previousStatus === "fulfilled" || previousStatus === "shipped") {
       await releaseStock(order._id.toString());
     }
   }
