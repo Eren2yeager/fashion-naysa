@@ -3,18 +3,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { motion } from "motion/react";
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
   Tag,
-  LogOut,
+  Settings,
 } from "lucide-react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import type { SessionUser } from "@/lib/auth";
 
 const NAV_LINKS = [
   { href: "/admin",          label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
@@ -42,7 +40,7 @@ const LogoIcon = () => (
   </a>
 );
 
-export function AdminSidebar({ user }: { user: SessionUser }) {
+export function AdminSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -73,29 +71,20 @@ export function AdminSidebar({ user }: { user: SessionUser }) {
           </div>
         </div>
 
-        {/* Bottom: user + sign out */}
-        <div className="flex flex-col gap-1">
+        {/* Bottom: settings */}
+        <div>
           <SidebarLink
             link={{
-              label: user.name ?? user.email,
-              href: "#",
-              icon: (
-                <div
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-300 dark:bg-neutral-600 text-sm font-semibold uppercase text-neutral-800 dark:text-neutral-100"
-                  aria-hidden="true"
-                >
-                  {(user.name ?? user.email).charAt(0)}
-                </div>
-              ),
+              label: "Settings",
+              href: "/admin/settings",
+              icon: <Settings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" />,
             }}
-          />
-          <SidebarLink
-            link={{
-              label: "Sign out",
-              href: "#",
-              icon: <LogOut className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" />,
-            }}
-            onClick={(e) => { e.preventDefault(); signOut({ redirectTo: "/login" }); }}
+            className={cn(
+              "rounded-md px-2",
+              pathname === "/admin/settings"
+                ? "bg-neutral-200 dark:bg-neutral-700"
+                : "hover:bg-neutral-200 dark:hover:bg-neutral-700"
+            )}
           />
         </div>
       </SidebarBody>

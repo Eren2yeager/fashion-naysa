@@ -11,6 +11,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   products: "Products",
   orders: "Orders",
   coupons: "Coupons",
+  settings: "Settings",
   new: "New",
 };
 

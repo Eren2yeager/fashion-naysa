@@ -29,6 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -38,6 +39,17 @@ export default function RootLayout({
         "font-sans",
       )}
     >
+      <head>
+        {/* ponytail: blocking inline script — runs before first paint so theme
+            class is set before CSS is applied, preventing flash of wrong theme.
+            dangerouslySetInnerHTML is intentional; this is a static string with
+            no user input. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('naysa-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col selection:bg-foreground selection:text-background">{children}</body>
     </html>
   );

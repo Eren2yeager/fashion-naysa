@@ -34,7 +34,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-neutral-100 dark:bg-neutral-800 md:flex-row">
-      <AdminSidebar user={user} />
+      <AdminSidebar />
       <div className="flex flex-1 flex-col overflow-hidden rounded-tl-2xl bg-background">
         <AdminHeader className="hidden md:flex" />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
