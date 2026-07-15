@@ -15,14 +15,14 @@ import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/admin",          label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
-  { href: "/admin/products", label: "Products",  icon: <Package        className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
-  { href: "/admin/orders",   label: "Orders",    icon: <ShoppingCart   className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
-  { href: "/admin/coupons",  label: "Coupons",   icon: <Tag            className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
+  { href: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
+  { href: "/admin/products",  label: "Products",  icon: <Package        className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
+  { href: "/admin/orders",    label: "Orders",    icon: <ShoppingCart   className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
+  { href: "/admin/coupons",   label: "Coupons",   icon: <Tag            className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden="true" /> },
 ];
 
 const Logo = () => (
-  <a href="/admin" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
+  <a href="/admin/dashboard" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
     <Image src="/icon0.svg" alt="Naysa" width={28} height={28} className="shrink-0" />
     <motion.span
       initial={{ opacity: 0 }}
@@ -35,7 +35,7 @@ const Logo = () => (
 );
 
 const LogoIcon = () => (
-  <a href="/admin" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
+  <a href="/admin/dashboard" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
     <Image src="/icon0.svg" alt="Naysa" width={28} height={28} className="shrink-0" />
   </a>
 );
@@ -53,7 +53,7 @@ export function AdminSidebar() {
           <div className="mt-8 flex flex-col gap-2">
             {NAV_LINKS.map(({ href, label, icon }) => {
               const isActive =
-                href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+                href === "/admin/dashboard" ? pathname === "/admin/dashboard" : pathname.startsWith(href);
               return (
                 <SidebarLink
                   key={href}

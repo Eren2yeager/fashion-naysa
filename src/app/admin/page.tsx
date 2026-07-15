@@ -1,110 +1,114 @@
-import { Suspense } from "react";
-import { requireAdmin } from "@/lib/auth";
-import { connectDB, OrderModel, ProductModel } from "@/lib/db";
-import { MetricCard } from "@/components/admin/dashboard/MetricCard";
-import { OrderStatusGrid } from "@/components/admin/dashboard/OrderStatusGrid";
-import { RupeeDisplay } from "@/components/admin/shared/RupeeDisplay";
-import { computeRevenue, computeStatusCounts, REVENUE_STATUSES } from "@/lib/admin/metrics";
-import type { OrderStatus } from "@/lib/db/models/Order";
+import Image from "next/image";
+import Link from "next/link";
+import { getOptionalUser } from "@/lib/auth";
+import { GoogleSignInButton } from "@/app/login/GoogleSignInButton";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
+import { cn } from "@/lib/utils";
 
-// ─── Skeleton (Suspense fallback) ────────────────────────────────────────────
+export const metadata = {
+  title: "Naysa Admin",
+  description: "Admin CMS for Naysa",
+};
 
-function MetricSkeleton() {
-  return <MetricCard title="" loading />;
-}
+export default async function AdminLandingPage() {
+  const user = await getOptionalUser();
 
-function GridSkeleton() {
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <MetricCard key={i} title="" loading />
-      ))}
-    </div>
-  );
-}
-
-// ─── Dashboard Page ───────────────────────────────────────────────────────────
-
-export default async function AdminDashboardPage() {
-  await requireAdmin();
-  await connectDB();
-
-  // Fetch orders (for revenue + status counts) and active product count in parallel.
-  // allSettled: one failure doesn't block the other metrics (Req 2.7).
-  const [ordersResult, productsResult] = await Promise.allSettled([
-    OrderModel.find()
-      .select("total status")
-      .lean<Array<{ total: number; status: string }>>(),
-    ProductModel.countDocuments({ isActive: true }),
-  ]);
-
-  const orders =
-    ordersResult.status === "fulfilled" ? ordersResult.value : null;
-  const ordersError =
-    ordersResult.status === "rejected"
-      ? "Could not load order data."
-      : undefined;
-
-  const activeCount =
-    productsResult.status === "fulfilled" ? productsResult.value : null;
-  const productsError =
-    productsResult.status === "rejected"
-      ? "Could not load product data."
-      : undefined;
-
-  // Derive metrics from orders (or null if the query failed).
-  const revenue = orders !== null ? computeRevenue(orders) : null;
-  const statusCounts = orders !== null ? computeStatusCounts(orders) : null;
-
-  // Revenue placeholder when no qualifying orders exist (Req 2.4).
-  const hasRevenue =
-    revenue !== null &&
-    orders!.some((o) => REVENUE_STATUSES.includes(o.status as OrderStatus));
+  const isAdmin = user?.role === "admin";
+  const isLoggedIn = !!user;
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6">
+      {/* Subtle grid background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,oklch(0.145_0_0/4%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.145_0_0/4%)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,oklch(0.985_0_0/4%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.985_0_0/4%)_1px,transparent_1px)] bg-size-[48px_48px]"
+      />
 
-      {/* Revenue + active products — two side-by-side metric cards */}
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Suspense fallback={<MetricSkeleton />}>
-          <MetricCard
-            title="Total Revenue"
-            value={
-              ordersError ? undefined : hasRevenue ? (
-                <RupeeDisplay paise={revenue!} />
-              ) : (
-                <span className="text-base text-muted-foreground">
-                  No sales data available
-                </span>
-              )
-            }
-            error={ordersError}
+      {/* Top-right theme badge */}
+      <div className="absolute right-6 top-6">
+        <AnimatedShinyText className="text-xs tracking-widest uppercase font-mono text-muted-foreground">
+          CMS
+        </AnimatedShinyText>
+      </div>
+
+      {/* Card */}
+      <div className="relative w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <BorderBeam
+          size={120}
+          duration={10}
+          colorFrom="oklch(0.708 0 0)"
+          colorTo="oklch(0.439 0 0)"
+        />
+
+        {/* App icon + wordmark */}
+        <div className="mb-8 flex flex-col items-center gap-3">
+          <Image
+            src="/icon0.svg"
+            alt="Naysa"
+            width={48}
+            height={48}
+            className="shrink-0"
+            priority
           />
-        </Suspense>
+          <div className="text-center">
+            <h1 className="font-heading text-2xl tracking-tight text-foreground">
+              Naysa
+            </h1>
+            <p className="mt-0.5 text-xs font-mono tracking-widest uppercase text-muted-foreground">
+              Admin Console
+            </p>
+          </div>
+        </div>
 
-        <Suspense fallback={<MetricSkeleton />}>
-          <MetricCard
-            title="Active Products"
-            value={activeCount ?? undefined}
-            error={productsError}
-          />
-        </Suspense>
-      </section>
+        {/* Auth states */}
+        {!isLoggedIn && (
+          <div className="space-y-4">
+            <p className="text-center text-sm text-muted-foreground">
+              Sign in with your Google account to continue.
+            </p>
+            <div className="flex justify-center">
+              <GoogleSignInButton callbackUrl="/admin" />
+            </div>
+          </div>
+        )}
 
-      {/* Order status breakdown grid */}
-      <section>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-          Orders by status
-        </h2>
-        <Suspense fallback={<GridSkeleton />}>
-          {ordersError ? (
-            <p className="text-sm text-destructive">{ordersError}</p>
-          ) : (
-            <OrderStatusGrid counts={statusCounts!} />
-          )}
-        </Suspense>
-      </section>
-    </div>
+        {isLoggedIn && isAdmin && (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted px-4 py-3 text-center">
+              <p className="text-xs text-muted-foreground">Signed in as</p>
+              <p className="mt-0.5 truncate text-sm font-medium text-foreground">
+                {user.email}
+              </p>
+            </div>
+            <Link
+              href="/admin/dashboard"
+              className={cn(
+                "flex w-full items-center justify-center gap-2 rounded-lg",
+                "bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground",
+                "transition-opacity hover:opacity-90"
+              )}
+            >
+              Go to Dashboard
+            </Link>
+          </div>
+        )}
+
+        {isLoggedIn && !isAdmin && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-center">
+              <p className="text-sm font-medium text-destructive">
+                Admin credentials required
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Your account ({user.email}) does not have admin access.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+
+    </main>
   );
 }

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 // Map path segments to display labels
 const SEGMENT_LABELS: Record<string, string> = {
   admin: "Admin",
+  dashboard: "Dashboard",
   products: "Products",
   orders: "Orders",
   coupons: "Coupons",
