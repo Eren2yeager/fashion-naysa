@@ -1,5 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth";
+
+export const metadata: Metadata = {
+  title: "Products — Naysa Admin",
+  description: "Manage the Naysa product catalogue.",
+  robots: { index: false, follow: false },
+};
 import { connectDB, ProductModel } from "@/lib/db";
 import { ProductTable } from "@/components/admin/products/ProductTable";
 

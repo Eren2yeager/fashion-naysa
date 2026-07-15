@@ -1,5 +1,12 @@
 import { requireAdmin } from "@/lib/auth";
+import type { Metadata } from "next";
 import { connectDB, OrderModel } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Orders — Naysa Admin",
+  description: "View and manage customer orders.",
+  robots: { index: false, follow: false },
+};
 import { OrderTable } from "@/components/admin/orders/OrderTable";
 
 export default async function OrdersPage() {

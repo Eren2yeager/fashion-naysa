@@ -1,5 +1,12 @@
 import { requireAdmin } from "@/lib/auth";
+import type { Metadata } from "next";
 import { connectDB, CouponModel } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Coupons — Naysa Admin",
+  description: "Create and manage discount coupons.",
+  robots: { index: false, follow: false },
+};
 import { CouponTable } from "@/components/admin/coupons/CouponTable";
 
 export default async function CouponsPage() {

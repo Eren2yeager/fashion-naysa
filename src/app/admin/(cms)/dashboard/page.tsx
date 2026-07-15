@@ -1,5 +1,12 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth";
+
+export const metadata: Metadata = {
+  title: "Dashboard — Naysa Admin",
+  description: "Overview of revenue, active products, and order statuses.",
+  robots: { index: false, follow: false },
+};
 import { connectDB, OrderModel, ProductModel } from "@/lib/db";
 import { MetricCard } from "@/components/admin/dashboard/MetricCard";
 import { OrderStatusGrid } from "@/components/admin/dashboard/OrderStatusGrid";

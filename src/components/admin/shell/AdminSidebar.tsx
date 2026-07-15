@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import {
@@ -22,7 +23,7 @@ const NAV_LINKS = [
 ];
 
 const Logo = () => (
-  <a href="/admin/dashboard" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
+  <Link href="/admin/dashboard" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
     <Image src="/icon0.svg" alt="Naysa" width={28} height={28} className="shrink-0" />
     <motion.span
       initial={{ opacity: 0 }}
@@ -31,13 +32,13 @@ const Logo = () => (
     >
       Naysa Admin
     </motion.span>
-  </a>
+  </Link>
 );
 
 const LogoIcon = () => (
-  <a href="/admin/dashboard" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
+  <Link href="/admin/dashboard" className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal">
     <Image src="/icon0.svg" alt="Naysa" width={28} height={28} className="shrink-0" />
-  </a>
+  </Link>
 );
 
 export function AdminSidebar() {

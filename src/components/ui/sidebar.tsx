@@ -154,6 +154,8 @@ export const MobileSidebar = ({
   );
 };
 
+import Link from "next/link";
+
 export const SidebarLink = ({
   link,
   className,
@@ -164,7 +166,7 @@ export const SidebarLink = ({
 } & Omit<React.ComponentPropsWithoutRef<"a">, "href">) => {
   const { open, animate } = useSidebar();
   return (
-    <a
+    <Link
       href={link.href}
       className={cn(
         "flex items-center justify-start gap-2  group/sidebar py-2",
@@ -183,6 +185,6 @@ export const SidebarLink = ({
       >
         {link.label}
       </motion.span>
-    </a>
+    </Link>
   );
 };
