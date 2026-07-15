@@ -1,48 +1,46 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { connectDB, UserModel } from "@/lib/db";
 import { forbidden, unauthorized } from "@/lib/errors/AppError";
 
 export type SessionUser = {
-  clerkId: string;
+  id: string; // Google `sub` — stable per account
   email: string;
   role: "user" | "admin";
   name?: string;
 };
 
-async function getOrCreateUser(): Promise<SessionUser | null> {
-  const { userId } = await auth();
-  if (!userId) return null;
+async function loadOrCreateSessionUser(): Promise<SessionUser | null> {
+  const session = await auth();
+  // We attached `id` to session.user in the NextAuth callbacks.
+  const id = (session?.user as { id?: string } | undefined)?.id;
+  if (!id) return null;
 
   await connectDB();
-  let user = await UserModel.findOne({ clerkId: userId }).lean();
-  if (!user) {
-    const cu = await currentUser();
-    if (!cu) return null;
-    const created = await UserModel.findOneAndUpdate(
-      { clerkId: userId },
-      {
-        $setOnInsert: {
-          clerkId: userId,
-          email: cu.emailAddresses[0]?.emailAddress ?? "",
-          name: [cu.firstName, cu.lastName].filter(Boolean).join(" ") || undefined,
-          imageUrl: cu.imageUrl || undefined,
-          role: "user",
-        },
+  const user = await UserModel.findOneAndUpdate(
+    { accountId: id },
+    {
+      $setOnInsert: {
+        accountId: id,
+        email: session?.user?.email ?? "",
+        name: session?.user?.name ?? undefined,
+        imageUrl: session?.user?.image ?? undefined,
+        role: "user",
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-    user = created!.toObject();
-  }
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true },
+  ).lean();
+
+  if (!user) return null;
   return {
-    clerkId: user!.clerkId,
-    email: user!.email,
-    role: user!.role as "user" | "admin",
-    name: user!.name ?? undefined,
+    id: user.accountId,
+    email: user.email,
+    role: user.role as "user" | "admin",
+    name: user.name ?? undefined,
   };
 }
 
 export async function requireUser(): Promise<SessionUser> {
-  const u = await getOrCreateUser();
+  const u = await loadOrCreateSessionUser();
   if (!u) throw unauthorized();
   return u;
 }
@@ -54,5 +52,5 @@ export async function requireAdmin(): Promise<SessionUser> {
 }
 
 export async function getOptionalUser(): Promise<SessionUser | null> {
-  return getOrCreateUser();
+  return loadOrCreateSessionUser();
 }

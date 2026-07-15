@@ -1,9 +1,10 @@
 import { Schema, model, models, type InferSchemaType } from "mongoose";
 
-// Mirror of Clerk — we don't own the auth record, only enough to attach a role.
+// We don't own the auth record (Google does). Mirror just enough to attach a
+// role and any app-specific fields. `accountId` is the Google `sub`.
 const UserSchema = new Schema(
   {
-    clerkId: { type: String, required: true, unique: true, index: true },
+    accountId: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user", index: true },
     name: { type: String },

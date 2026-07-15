@@ -15,7 +15,7 @@ export const POST = withApi(async (req: Request) => {
 
   // Money path: persist order first, then create Razorpay order linked to it.
   const order = await OrderModel.create({
-    userId: user.clerkId,
+    userId: user.id,
     status: "created",
     items: priced.lines,
     subtotal: priced.subtotal,
@@ -31,7 +31,7 @@ export const POST = withApi(async (req: Request) => {
     const rzp = await createRzpOrder({
       amount: priced.total,
       receipt: order._id.toString(),
-      notes: { orderId: order._id.toString(), userId: user.clerkId },
+      notes: { orderId: order._id.toString(), userId: user.id },
     });
     order.razorpayOrderId = rzp.id;
     await order.save();

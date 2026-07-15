@@ -11,7 +11,7 @@ export const GET = withApi(
     const { id } = await ctx.params;
     if (!id.match(OBJECT_ID)) throw badRequest("Invalid id");
     await connectDB();
-    const order = await OrderModel.findOne({ _id: id, userId: user.clerkId })
+    const order = await OrderModel.findOne({ _id: id, userId: user.id })
       .select("-__v -razorpaySignature")
       .lean();
     if (!order) throw notFound("Order not found");

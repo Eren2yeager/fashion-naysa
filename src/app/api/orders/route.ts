@@ -5,7 +5,7 @@ import { connectDB, OrderModel } from "@/lib/db";
 export const GET = withApi(async () => {
   const user = await requireUser();
   await connectDB();
-  const items = await OrderModel.find({ userId: user.clerkId })
+  const items = await OrderModel.find({ userId: user.id })
     .sort({ createdAt: -1 })
     .select("-__v -razorpaySignature")
     .lean();

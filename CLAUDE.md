@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Nayasa
+# Naysa
 
 Premium girls' shirt e-commerce brand site. Client freelance project. Focus: fast, elegant, client wants a CMS too.
 
@@ -9,7 +9,7 @@ Premium girls' shirt e-commerce brand site. Client freelance project. Focus: fas
 - MongoDB
 - bun.js manager
 - Razorpay (payments)
-- Clerk for auth
+- NextAuth (Google OAuth)
 - Shiprocket for delivery
 - Cloudinary (media)
 - Zod Validation
@@ -29,6 +29,8 @@ bun run test        # if/when test suite exists — add real command here once s
 ## Architecture
 - `/app` — routes (App Router). Storefront, admin, and API routes are separated under `/app/(storefront)`, `/app/admin`, `/app/api`.
 - `/lib/razorpay/` — payment order creation, webhook verification. Never touch signature verification logic without re-checking Razorpay docs.
+- `/lib/auth/` — session helpers (`requireUser`, `requireAdmin`, `getOptionalUser`). Backed by NextAuth v5 in `/auth.ts`.
+
 - `/lib/cloudinary/` — upload + transform helpers.
 - `/lib/db/` — Mongo connection + models (products, drops, coupons, wishlist, orders).
 - `/components/ui/` — shadcn primitives, don't hand-edit generated files; regenerate via CLI instead.

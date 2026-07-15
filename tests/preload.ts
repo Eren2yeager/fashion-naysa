@@ -4,8 +4,9 @@
 // @ts-expect-error mutating process.env at runtime in test preload
 process.env.NODE_ENV = "test";
 process.env.MONGODB_URI ||= "mongodb://localhost:27017/naysa-test";
-process.env.CLERK_SECRET_KEY ||= "test_clerk_secret";
-process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||= "test_clerk_pub";
+process.env.AUTH_SECRET ||= "test_auth_secret_at_least_32_characters_long";
+process.env.AUTH_GOOGLE_ID ||= "test_google_id";
+process.env.AUTH_GOOGLE_SECRET ||= "test_google_secret";
 process.env.RAZORPAY_KEY_ID ||= "rzp_test_id";
 process.env.RAZORPAY_KEY_SECRET ||= "rzp_test_secret";
 process.env.RAZORPAY_WEBHOOK_SECRET ||= "rzp_test_webhook_secret";

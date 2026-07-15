@@ -41,7 +41,7 @@ const LineSchema = new Schema(
 
 const OrderSchema = new Schema(
   {
-    userId: { type: String, required: true, index: true }, // Clerk userId
+    userId: { type: String, required: true, index: true }, // auth provider sub (Google)
     status: {
       type: String,
       enum: ORDER_STATUS,

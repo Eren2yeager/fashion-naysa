@@ -5,8 +5,11 @@ const serverSchema = z.object({
 
   MONGODB_URI: z.string().min(1, "MONGODB_URI required"),
 
-  CLERK_SECRET_KEY: z.string().min(1),
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+  AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 chars"),
+  AUTH_GOOGLE_ID: z.string().min(1),
+  AUTH_GOOGLE_SECRET: z.string().min(1),
+  // ponytail: only needed behind a proxy / non-localhost hosts; allow missing in dev.
+  AUTH_TRUST_HOST: z.string().optional(),
 
   RAZORPAY_KEY_ID: z.string().min(1),
   RAZORPAY_KEY_SECRET: z.string().min(1),
@@ -23,9 +26,9 @@ const serverSchema = z.object({
   CLOUDINARY_API_SECRET: z.string().min(1),
 });
 
-const clientSchema = z.object({
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
-});
+// ponytail: no client-side auth secrets. Google login button is a server
+// action — no NEXT_PUBLIC_* auth env needs to ship to the browser.
+const clientSchema = z.object({});
 
 const isServer = typeof window === "undefined";
 
@@ -33,11 +36,7 @@ let cached: z.infer<typeof serverSchema> | undefined;
 
 export function getEnv() {
   if (!isServer) {
-    // ponytail: client only needs the publishable key; full server env stays off the bundle
-    return clientSchema.parse({
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    }) as unknown as z.infer<typeof serverSchema>;
+    return clientSchema.parse({}) as unknown as z.infer<typeof serverSchema>;
   }
   if (cached) return cached;
   const parsed = serverSchema.safeParse(process.env);
