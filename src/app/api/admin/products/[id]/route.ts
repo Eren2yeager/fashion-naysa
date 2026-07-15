@@ -13,7 +13,7 @@ export const PATCH = withApi(
     if (!id.match(OBJECT_ID)) throw badRequest("Invalid id");
     const data = productUpdateSchema.parse(await req.json());
     await connectDB();
-    const updated = await ProductModel.findByIdAndUpdate(id, data, { new: true });
+    const updated = await ProductModel.findByIdAndUpdate(id, data, { returnDocument: 'after' });
     if (!updated) throw notFound("Product not found");
     return ok(updated);
   },

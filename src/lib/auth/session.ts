@@ -27,7 +27,7 @@ async function loadOrCreateSessionUser(): Promise<SessionUser | null> {
         role: "user",
       },
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
   ).lean();
 
   if (!user) return null;

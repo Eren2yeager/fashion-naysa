@@ -32,7 +32,7 @@ export async function claimStockDecrement(orderId: string) {
   return OrderModel.findOneAndUpdate(
     { _id: orderId, status: "paid", stockCommitted: false },
     { $set: { stockCommitted: true } },
-    { new: true },
+    { returnDocument: 'after' },
   );
 }
 

@@ -1,16 +1,8 @@
 import { Schema, model, models, type InferSchemaType } from "mongoose";
+import { ORDER_STATUS } from "@/lib/constants/orderStatus";
 
-export const ORDER_STATUS = [
-  "created",     // before payment
-  "paid",        // payment captured
-  "fulfilled",   // handed to shipping
-  "shipped",     // awb assigned
-  "delivered",
-  "cancelled",
-  "refunded",
-  "failed",
-] as const;
-export type OrderStatus = (typeof ORDER_STATUS)[number];
+export { ORDER_STATUS };
+export type { OrderStatus } from "@/lib/constants/orderStatus";
 
 const AddressSchema = new Schema(
   {
