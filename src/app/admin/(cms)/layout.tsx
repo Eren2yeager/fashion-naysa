@@ -1,3 +1,4 @@
+import "@/styles/admin-scrollbar.css";
 import { Toaster } from "sonner";
 import { requireAdmin } from "@/lib/auth";
 import { AppError } from "@/lib/errors/AppError";

@@ -1,0 +1,29 @@
+/* Admin-only custom scrollbar
+   Imported exclusively in src/app/admin/(cms)/layout.tsx              */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+/* Chromium / Safari */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+/* No track background, no border arrows */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

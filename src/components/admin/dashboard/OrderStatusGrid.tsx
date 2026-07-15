@@ -1,5 +1,6 @@
 import { ORDER_STATUS, type OrderStatus } from "@/lib/db/models/Order";
 import { StatusBadge } from "@/components/admin/shared/StatusBadge";
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 interface OrderStatusGridProps {
   counts: Partial<Record<OrderStatus, number>>;
@@ -14,9 +15,10 @@ export function OrderStatusGrid({ counts }: OrderStatusGridProps) {
           className="flex flex-col items-start gap-2 rounded-lg border bg-card p-4"
         >
           <StatusBadge status={status} />
-          <span className="text-2xl font-semibold tabular-nums">
-            {counts[status] ?? 0}
-          </span>
+          <NumberTicker
+            value={counts[status] ?? 0}
+            className="text-2xl font-semibold"
+          />
         </div>
       ))}
     </div>
