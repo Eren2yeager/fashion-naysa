@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOptionalUser } from "@/lib/auth";
@@ -5,7 +6,10 @@ import { ProfileCard } from "@/components/storefront/account/ProfileCard";
 import { OrderCountLink } from "@/components/storefront/account/OrderCountLink";
 import { signOutAction } from "./actions";
 
-export const metadata = { title: "My Account" };
+export const metadata: Metadata = {
+  title: "My Account",
+  robots: { index: false, follow: false },
+};
 
 export default async function AccountPage() {
   const user = await getOptionalUser();

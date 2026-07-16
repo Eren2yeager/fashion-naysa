@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getOptionalUser } from "@/lib/auth";
 import { connectDB, WishlistModel } from "@/lib/db";
 import WishlistClient from "@/components/storefront/wishlist/WishlistClient";
 
-export const metadata = { title: "Wishlist" };
+export const metadata: Metadata = {
+  title: "Wishlist",
+  robots: { index: false, follow: false },
+};
 
 type PopulatedProduct = {
   _id: { toString(): string };
@@ -41,7 +45,7 @@ export default async function WishlistPage() {
           name: p.name,
           price: p.price,
           compareAtPrice: p.compareAtPrice,
-          images: p.images,
+          images: p.images.map((img) => ({ url: img.url, alt: img.alt ?? "" })),
           variants: p.variants,
           tags: p.tags,
         };
