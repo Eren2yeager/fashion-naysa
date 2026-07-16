@@ -4,7 +4,7 @@ import { googleSignIn } from "./actions";
 
 export function GoogleSignInButton({ callbackUrl }: { callbackUrl?: string }) {
   return (
-    <form action={googleSignIn.bind(null, callbackUrl)}>
+    <form action={googleSignIn.bind(null, callbackUrl)} className="flex justify-center">
       <button
         type="submit"
         className="inline-flex items-center gap-2 rounded-md border border-foreground/20 px-4 py-2 text-sm font-medium hover:bg-foreground/5"

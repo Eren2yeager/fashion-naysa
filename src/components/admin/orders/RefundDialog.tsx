@@ -41,8 +41,11 @@ export function RefundDialog({
   // Reset on open
   React.useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAmountStr(String(toRupees(maxRefundable)));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReason("");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError("");
     }
   }, [open, maxRefundable]);
