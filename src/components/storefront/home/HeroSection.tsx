@@ -4,7 +4,7 @@ import HeroHeadline from "./HeroHeadline"
 
 export default function HeroSection() {
   return (
-    <section className="relative flex min-h-screen w-full items-end overflow-hidden bg-background">
+    <section data-nav-theme="dark" className="relative flex min-h-screen w-full items-end overflow-hidden bg-background">
       {/* Hero image */}
       <Image
         src="/images/hero-1.png"
@@ -16,6 +16,8 @@ export default function HeroSection() {
       />
       {/* Overlay */}
       <div className="absolute inset-0 bg-background/40" />
+      {/* Top gradient — ensures nav text is always legible over the image */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-black/50 to-transparent pointer-events-none z-1" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-24 md:px-12">
