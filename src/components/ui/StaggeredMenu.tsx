@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, prefer-const */
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 

@@ -11,7 +11,7 @@ const serverSchema = z.object({
   // ponytail: only needed behind a proxy / non-localhost hosts; allow missing in dev.
   AUTH_TRUST_HOST: z.string().optional(),
 
-  RAZORPAY_KEY_ID: z.string().min(1),
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: z.string().min(1),
   RAZORPAY_KEY_SECRET: z.string().min(1),
   RAZORPAY_WEBHOOK_SECRET: z.string().min(1),
 

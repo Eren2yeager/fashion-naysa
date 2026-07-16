@@ -25,6 +25,7 @@ export function useTheme() {
   useEffect(() => {
     const initial = getInitialTheme();
     applyTheme(initial);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThemeState(initial);
   }, []);
 

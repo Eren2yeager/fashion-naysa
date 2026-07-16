@@ -2,12 +2,12 @@ import { z } from "zod";
 
 export const addressSchema = z.object({
   fullName: z.string().min(1),
-  phone: z.string().min(7),
+  phone: z.string().regex(/^\d{10}$/),
   line1: z.string().min(1),
   line2: z.string().optional().default(""),
   city: z.string().min(1),
   state: z.string().min(1),
-  pincode: z.string().min(4),
+  pincode: z.string().regex(/^\d{6}$/),
   country: z.string().length(2).default("IN"),
 });
 

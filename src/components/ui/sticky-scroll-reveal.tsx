@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { motion } from "motion/react";
@@ -56,6 +57,7 @@ export const StickyScroll = ({
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBackgroundGradient(linearGradients[activeCard % linearGradients.length]);
   }, [activeCard]);
 

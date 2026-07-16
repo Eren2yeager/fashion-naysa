@@ -5,7 +5,7 @@ const schema = z.object({
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 chars"),
   AUTH_GOOGLE_ID: z.string().min(1),
   AUTH_GOOGLE_SECRET: z.string().min(1),
-  RAZORPAY_KEY_ID: z.string().min(1),
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: z.string().min(1),
   RAZORPAY_KEY_SECRET: z.string().min(1),
   RAZORPAY_WEBHOOK_SECRET: z.string().min(1),
   SHIPROCKET_EMAIL: z.string().email(),
