@@ -8,9 +8,9 @@ import { staggerContainer, fadeUp } from "@/lib/animation-variants";
 
 const COLLECTIONS = [
   { tag: "resort",  label: "Resort Ease",     image: "/images/collection-resort.png" },
-  { tag: "workday", label: "Workday Form",     image: "/images/collection-workday.jpg" },
-  { tag: "evening", label: "Evening Line",     image: "/images/collection-evening.jpg" },
-  { tag: "soft",    label: "Soft Structure",   image: "/images/collection-soft.jpg" },
+  { tag: "workday", label: "Workday Form",     image: "/images/collection-workday.png" },
+  { tag: "evening", label: "Evening Line",     image: "/images/collection-evening.png" },
+  { tag: "soft",    label: "Soft Structure",   image: "/images/collection-soft.png" },
 ] as const;
 
 export default function CollectionsSection() {
@@ -31,9 +31,9 @@ export default function CollectionsSection() {
           {COLLECTIONS.map((col) => (
             <motion.div key={col.tag} variants={fadeUp}>
               <Link href={`/shop?tag=${col.tag}`}>
-                <CardContainer containerClassName="py-0">
+                <CardContainer containerClassName="py-0 w-full">
                   <CardBody className="h-[480px] w-full relative">
-                    <CardItem translateZ={20} className="w-full h-full">
+                    <CardItem translateZ={20} className="w-full h-[480px]">
                       <div className="relative h-full w-full overflow-hidden bg-muted">
                         <Image
                           src={col.image}

@@ -14,7 +14,7 @@ export default function BrandPhilosophyImage() {
       className="relative aspect-[16/9] w-full overflow-hidden"
     >
       <Image
-        src="/images/brand-editorial.jpg"
+        src="/images/brand-editorial.png"
         alt="Naysa brand editorial"
         fill
         className="object-cover"

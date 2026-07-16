@@ -56,7 +56,7 @@ export default function FeaturedProducts() {
       })
       .then((data) => {
         // API may return { products: [...] } or [...]
-        setProducts(Array.isArray(data) ? data : (data.products ?? []));
+        setProducts(Array.isArray(data) ? data : (data.items ?? data.products ?? []));
       })
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));

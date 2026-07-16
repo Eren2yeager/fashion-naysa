@@ -3,12 +3,12 @@
 import Image from "next/image";
 
 const IG_IMAGES = [
-  "/images/social-ig-1.jpg",
-  "/images/social-ig-2.jpg",
-  "/images/social-ig-3.jpg",
-  "/images/social-ig-4.jpg",
-  "/images/social-ig-5.jpg",
-  "/images/social-ig-6.jpg",
+  "/images/social-ig-1.png",
+  "/images/social-ig-2.png",
+  "/images/social-ig-3.png",
+  "/images/social-ig-4.png",
+  "/images/social-ig-5.png",
+  "/images/social-ig-6.png",
 ] as const;
 
 export default function SocialFollow() {

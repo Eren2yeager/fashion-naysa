@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import type { OrderStatus } from "@/lib/db";
@@ -14,6 +15,7 @@ export type StorefrontOrder = {
     color: string;
     qty: number;
     unitPrice: number; // paise
+    image?: string; // first product image URL, populated at query time
   }[];
   subtotal: number;
   discount: number;
@@ -109,14 +111,39 @@ export function OrderDetail({ order }: OrderDetailProps) {
         </h2>
         <ul className="divide-y divide-border border border-border rounded">
           {order.items.map((item, i) => (
-            <li key={i} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-              <div className="min-w-0">
-                <p className="font-medium text-foreground truncate">{item.name}</p>
+            <li key={i} className="flex items-center gap-4 px-4 py-4">
+              {/* Product thumbnail */}
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-muted border border-border">
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground tracking-widest uppercase">
+                    No img
+                  </div>
+                )}
+                {item.qty > 1 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold text-background">
+                    {item.qty}
+                  </span>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {item.size} / {item.color} × {item.qty}
+                  {item.size} · {item.color}
                 </p>
               </div>
-              <span className="shrink-0 font-medium text-foreground">
+
+              {/* Price */}
+              <span className="shrink-0 text-sm font-medium text-foreground">
                 {formatPrice(item.unitPrice * item.qty)}
               </span>
             </li>

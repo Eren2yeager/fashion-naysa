@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { ShoppingBag, Heart, Menu } from "lucide-react";
-import { useState } from "react";
+import { ShoppingBag, Heart } from "lucide-react";
 
 import { useCartStore } from "@/lib/cart-store";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +23,6 @@ export default function StorefrontNav() {
   const { data: session } = useSession();
   const itemCount = useCartStore((s) => s.items.reduce((n, i) => n + i.qty, 0));
   const toggleCart = useCartStore((s) => s.toggleCart);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -84,9 +82,13 @@ export default function StorefrontNav() {
           </button>
 
           {session ? (
-            <span className="text-xs font-medium text-muted-foreground truncate max-w-[100px]">
+            <Link
+              href="/account"
+              className="text-xs font-medium text-muted-foreground truncate max-w-[100px] hover:text-foreground transition-colors"
+              aria-label="My account"
+            >
               {session.user?.name?.split(" ")[0] ?? session.user?.email}
-            </span>
+            </Link>
           ) : (
             <Link href="/login">
               <Button variant="outline" size="sm">
@@ -96,35 +98,24 @@ export default function StorefrontNav() {
           )}
         </div>
 
-        {/* Mobile hamburger — StaggeredMenu owns the button internally, so we
-            wrap in a positioned container so it renders at full screen */}
-        <div className="md:hidden relative">
-          <button
-            type="button"
-            aria-label="Open menu"
-            onClick={() => setMobileOpen(true)}
-            className="flex h-11 w-11 items-center justify-center text-foreground"
-          >
-            <Menu className="size-5" />
-          </button>
-
-          {mobileOpen && (
-            <div className="fixed inset-0 z-50">
-              <StaggeredMenu
-                isFixed
-                items={[
-                  ...NAV_ITEMS.map((i) => ({ label: i.label, ariaLabel: i.ariaLabel, link: i.link })),
-                  ...(session
-                    ? [{ label: "WISHLIST", ariaLabel: "Wishlist", link: "/wishlist" }]
-                    : [{ label: "SIGN IN", ariaLabel: "Sign in", link: "/login" }]),
-                ]}
-                socialItems={SOCIAL_ITEMS}
-                colors={["var(--foreground)", "var(--primary)"]}
-                onMenuClose={() => setMobileOpen(false)}
-                closeOnClickAway
-              />
-            </div>
-          )}
+        {/* Mobile — StaggeredMenu's own toggle button is the hamburger.
+            Always in the DOM so GSAP can animate; isFixed makes it full-screen. */}
+        <div className="md:hidden">
+          <StaggeredMenu
+            isFixed
+            items={[
+              ...NAV_ITEMS.map((i) => ({ label: i.label, ariaLabel: i.ariaLabel, link: i.link })),
+              ...(session
+                ? [
+                    { label: "WISHLIST", ariaLabel: "Wishlist", link: "/wishlist" },
+                    { label: "MY ACCOUNT", ariaLabel: "My account", link: "/account" },
+                  ]
+                : [{ label: "SIGN IN", ariaLabel: "Sign in", link: "/login" }]),
+            ]}
+            socialItems={SOCIAL_ITEMS}
+            colors={["var(--foreground)", "var(--primary)"]}
+            closeOnClickAway
+          />
         </div>
       </nav>
     </header>
