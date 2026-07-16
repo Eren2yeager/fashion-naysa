@@ -1,8 +1,20 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { connectDB, ProductModel, WishlistModel, type Product as MongoProduct } from "@/lib/db";
 import { getOptionalUser } from "@/lib/auth";
 import ShopFilters from "@/components/storefront/shop/ShopFilters";
 import ProductGrid from "@/components/storefront/shop/ProductGrid";
+
+export const metadata: Metadata = {
+  title: "Shop",
+  description: "Browse Naysa's full range of premium shirts for girls. Filter by style, size, and more.",
+  openGraph: {
+    title: "Shop — Naysa",
+    description: "Browse Naysa's full range of premium shirts for girls.",
+    url: "/shop",
+    images: [{ url: "/images/hero-2.png", width: 1200, height: 630, alt: "Naysa Shop" }],
+  },
+};
 
 type SearchParams = Promise<{
   tag?: string;

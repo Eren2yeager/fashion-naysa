@@ -1,9 +1,38 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connectDB, ProductModel, WishlistModel, type Product } from "@/lib/db";
 import { getOptionalUser } from "@/lib/auth";
 import PDPClient, { type SerializedProduct } from "@/components/storefront/pdp/PDPClient";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  await connectDB();
+  const raw = await ProductModel.findOne({ slug, isActive: true })
+    .select("name description images")
+    .lean();
+  if (!raw) return { title: "Product Not Found" };
+
+  const firstImage = raw.images?.[0];
+  return {
+    title: raw.name,
+    description: raw.description?.slice(0, 160) || `Shop ${raw.name} at Naysa.`,
+    openGraph: {
+      title: raw.name,
+      description: raw.description?.slice(0, 160) || `Shop ${raw.name} at Naysa.`,
+      url: `/shop/${slug}`,
+      ...(firstImage && {
+        images: [{ url: firstImage.url, alt: firstImage.alt || raw.name }],
+      }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: raw.name,
+      ...(firstImage && { images: [firstImage.url] }),
+    },
+  };
+}
 
 export default async function PDPPage({ params }: Props) {
   const { slug } = await params;

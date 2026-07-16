@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import CollectionsSection from "@/components/storefront/home/CollectionsSection";
 
-export const metadata = {
-  title: "Collections — Naysa",
+export const metadata: Metadata = {
+  title: "Collections",
+  description: "Explore Naysa's curated collections — from workday essentials to resort and evening styles.",
+  openGraph: {
+    title: "Collections — Naysa",
+    description: "Explore Naysa's curated collections — from workday essentials to resort and evening styles.",
+    url: "/collections",
+    images: [
+      { url: "/images/collection-soft.png", width: 1200, height: 630, alt: "Naysa Collections" },
+    ],
+  },
 };
 
 export default function CollectionsPage() {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getOptionalUser } from "@/lib/auth";
@@ -7,6 +8,14 @@ import { OrderDetail, type StorefrontOrder } from "@/components/storefront/order
 type Props = { params: Promise<{ orderId: string }> };
 
 const OBJECT_ID = /^[0-9a-fA-F]{24}$/;
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { orderId } = await params;
+  return {
+    title: `Order Confirmed — #${orderId.slice(-8).toUpperCase()}`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function OrderConfirmationPage({ params }: Props) {
   const { orderId } = await params;
