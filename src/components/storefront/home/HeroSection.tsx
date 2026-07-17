@@ -11,7 +11,7 @@ export default function HeroSection() {
         alt="Naysa – Dress With Intent"
         fill
         priority
-        className="object-cover object-center"
+        className="object-cover object-top"
         sizes="100vw"
       />
       {/* Overlay */}
