@@ -43,4 +43,7 @@ next-env.d.ts
 .mcp.json
 ai.docs/
 .kiro/
-.vscode
+.vscode/
+.trae/
+scripts/
+tests/

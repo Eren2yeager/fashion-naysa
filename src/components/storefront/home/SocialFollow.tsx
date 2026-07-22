@@ -29,12 +29,12 @@ export default function SocialFollow() {
           </a>
         </div>
 
-        {/* Horizontally scrollable image strip */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+        {/* Keep rail on small screens. Switch to grid on larger screens so desktop trackpads do not get trapped in horizontal snap. */}
+        <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-proximity md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0 md:snap-none lg:grid-cols-6">
           {IG_IMAGES.map((src, i) => (
             <div
               key={src}
-              className="relative aspect-square w-48 shrink-0 overflow-hidden bg-muted snap-start md:w-64"
+              className="relative aspect-square w-48 shrink-0 overflow-hidden bg-muted snap-start md:w-full"
             >
               <Image
                 src={src}

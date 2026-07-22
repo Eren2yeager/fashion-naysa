@@ -9,7 +9,7 @@ export default function HeroHeadline() {
       variants={fadeUp}
       initial="hidden"
       animate="visible"
-      className="text-5xl font-bold tracking-tighter uppercase text-foreground md:text-7xl xl:text-9xl"
+      className="text-4xl font-bold tracking-tighter uppercase text-foreground md:text-7xl xl:text-9xl"
     >
       DRESS WITH INTENT
     </motion.h1>
